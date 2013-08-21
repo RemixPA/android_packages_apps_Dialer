@@ -1329,4 +1329,20 @@ public class HanziToPinyin {
         }
         return result.toString();
     }
+    
+    public boolean isChineseWords(String source) {
+        if (!Arrays.asList(Collator.getAvailableLocales()).contains(Locale.CHINA)) {
+            return false;
+        }
+        ArrayList<Token> tokens = this.get(source);
+        if (tokens == null || tokens.size() == 0) {
+            return false;
+        }
+        for (Token token : tokens) {
+            if (token.type == Token.PINYIN) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
