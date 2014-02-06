@@ -18,6 +18,7 @@ package com.android.dialer.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import java.util.Locale;
 
 public class LocationUtil {
     public static boolean isChineseLanguage() {
