@@ -206,6 +206,8 @@ public class DialpadFragment extends Fragment
     private ToneGenerator mToneGenerator;
     private final Object mToneGeneratorLock = new Object();
     private View mDialpad;
+    private View mSpacer;
+
     /**
      * Set of dialpad keys that are currently being pressed
      */
@@ -428,6 +430,18 @@ public class DialpadFragment extends Fragment
             mDelete.setOnLongClickListener(this);
         }
 
+        mSpacer = fragmentView.findViewById(R.id.spacer);
+        mSpacer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (isDigitsEmpty()) {
+                    hideAndClearDialpad();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         mDialpad = fragmentView.findViewById(R.id.dialpad);  // This is null in landscape mode.
 
         // In landscape we put the keyboard in phone mode.
@@ -626,11 +640,18 @@ public class DialpadFragment extends Fragment
                 R.string.dialpad_8_letters, R.string.dialpad_9_letters,
                 R.string.dialpad_star_letters, R.string.dialpad_pound_letters};
 
+        final int[] letter2Ids = new int[] {R.string.dialpad_0_2_letters, R.string.dialpad_1_2_letters,
+                R.string.dialpad_2_2_letters, R.string.dialpad_3_2_letters, R.string.dialpad_4_2_letters,
+                R.string.dialpad_5_2_letters, R.string.dialpad_6_2_letters, R.string.dialpad_7_2_letters,
+                R.string.dialpad_8_2_letters, R.string.dialpad_9_2_letters,
+                R.string.dialpad_star_2_letters, R.string.dialpad_pound_2_letters};
+
         final Resources resources = getResources();
 
         DialpadKeyButton dialpadKey;
         TextView numberView;
         TextView lettersView;
+        TextView letters2View;
 
         for (int i = 0; i < buttonIds.length; i++) {
             dialpadKey = (DialpadKeyButton) fragmentView.findViewById(buttonIds[i]);
@@ -639,6 +660,7 @@ public class DialpadFragment extends Fragment
             dialpadKey.setOnPressedListener(this);
             numberView = (TextView) dialpadKey.findViewById(R.id.dialpad_key_number);
             lettersView = (TextView) dialpadKey.findViewById(R.id.dialpad_key_letters);
+            letters2View = (TextView) dialpadKey.findViewById(R.id.dialpad_key2_letters);
             final String numberString = resources.getString(numberIds[i]);
             numberView.setText(numberString);
             dialpadKey.setContentDescription(numberString);
@@ -647,6 +669,13 @@ public class DialpadFragment extends Fragment
                 if (buttonIds[i] == R.id.zero) {
                     lettersView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(
                             R.dimen.dialpad_key_plus_size));
+                }
+            }
+            if (letters2View != null) {
+                letters2View.setText(resources.getString(letter2Ids[i]));
+                if (buttonIds[i] == R.id.zero) {
+                    letters2View.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(
+                            R.dimen.dialpad_key_plus_size)/2);
                 }
             }
         }

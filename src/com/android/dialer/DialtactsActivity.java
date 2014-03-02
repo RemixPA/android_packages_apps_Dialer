@@ -27,6 +27,7 @@ import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -38,8 +39,11 @@ import android.provider.ContactsContract.Intents.UI;
 import android.speech.RecognizerIntent;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -225,7 +229,11 @@ public class DialtactsActivity extends TransactionSafeActivity implements View.O
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                final String newText = s.toString();
+                final boolean dialpadSearch = isDialpadShowing();
+
+                final String newText = dialpadSearch ?
+                   SmartDialNameMatcher.normalizeNumber(s.toString(), SmartDialPrefix.getMap()):
+                   s.toString();
                 if (newText.equals(mSearchQuery)) {
                     // If the query hasn't changed (perhaps due to activity being destroyed
                     // and restored, or user launching the same DIAL intent twice), then there is
@@ -236,7 +244,6 @@ public class DialtactsActivity extends TransactionSafeActivity implements View.O
                 if (DEBUG) {
                     Log.d(TAG, "onTextChange for mSearchView called with new query: " + s);
                 }
-                final boolean dialpadSearch = isDialpadShowing();
 
                 // Show search result with non-empty text. Show a bare list otherwise.
                 if (TextUtils.isEmpty(newText) && getInSearchUi()) {
@@ -255,6 +262,7 @@ public class DialtactsActivity extends TransactionSafeActivity implements View.O
 
                     if (dialpadSearch && mSmartDialSearchFragment != null) {
                             mSmartDialSearchFragment.setQueryString(newText, false);
+                            mSmartDialSearchFragment.setDialpadQueryString(s.toString());
                     } else if (mRegularSearchFragment != null) {
                         mRegularSearchFragment.setQueryString(newText, false);
                     }
@@ -507,7 +515,19 @@ public class DialtactsActivity extends TransactionSafeActivity implements View.O
         mVoiceSearchButton.setOnClickListener(this);
         mSearchView = (EditText) findViewById(R.id.search_view);
         mSearchView.addTextChangedListener(mPhoneSearchQueryTextListener);
-        mSearchView.setHint(getString(R.string.dialer_hint_find_contact));
+
+        final String hintText = getString(R.string.dialer_hint_find_contact);
+
+        // The following code is used to insert an icon into a CharSequence (copied from
+        // SearchView)
+        final SpannableStringBuilder ssb = new SpannableStringBuilder("   "); // for the icon
+        ssb.append(hintText);
+        final Drawable searchIcon = getResources().getDrawable(R.drawable.ic_ab_search);
+        final int textSize = (int) (mSearchView.getTextSize() * 1.20);
+        searchIcon.setBounds(0, 0, textSize, textSize);
+        ssb.setSpan(new ImageSpan(searchIcon), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        mSearchView.setHint(ssb);
     }
 
     final AnimatorListener mHideListener = new AnimatorListenerAdapter() {
@@ -852,7 +872,6 @@ public class DialtactsActivity extends TransactionSafeActivity implements View.O
         }
         // Go all the way back to the favorites fragment, regardless of how many times we
         // transitioned between search fragments
-        final BackStackEntry entry = getFragmentManager().getBackStackEntryAt(0);
         getFragmentManager().popBackStack(0, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         setNotInSearchUi();
     }
@@ -885,8 +904,7 @@ public class DialtactsActivity extends TransactionSafeActivity implements View.O
 
     @Override
     public void onDialpadQueryChanged(String query) {
-        final String normalizedQuery = SmartDialNameMatcher.normalizeNumber(query,
-                SmartDialNameMatcher.LATIN_SMART_DIAL_MAP);
+        final String normalizedQuery = query;
         if (!TextUtils.equals(mSearchView.getText(), normalizedQuery)) {
             if (DEBUG) {
                 Log.d(TAG, "onDialpadQueryChanged - new query: " + query);
