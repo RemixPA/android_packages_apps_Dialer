@@ -17,7 +17,6 @@
 package com.android.dialer.dialpad;
 
 import android.content.Context;
-
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
@@ -92,7 +91,9 @@ public class SmartDialPrefix {
 
         /** Sets a layout for SmartDial depending on current UI language.*/
         String locale = context.getResources().getConfiguration().locale.getCountry();
-        if (locale.equals("RU")) {
+        if (locale.equals("CN")||locale.equals("TW")) {
+            mMap = new ChineseSmartDialMap(context);
+        } else if (locale.equals("RU")) {
             mMap = new RussianSmartDialMap();
         } else if (locale.equals("GR")) {
             mMap = new GreekSmartDialMap();
@@ -609,6 +610,7 @@ public class SmartDialPrefix {
         result.add("TC"); // Turks and Caicos Islands
         result.add("VI"); // U.S. Virgin Islands
         result.add("RU"); // Russia
+        result.add("ZH"); // China
         return result;
     }
 
