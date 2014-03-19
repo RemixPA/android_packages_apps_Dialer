@@ -18,10 +18,16 @@ package com.android.dialer.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+
 import java.util.Locale;
 
 public class LocationUtil {
     public static boolean isChineseLanguage() {
-       return Resources.getSystem().getConfiguration().locale.getLanguage().startsWith(Locale.CHINESE.getLanguage());
+        return Resources.getSystem().getConfiguration().locale.getLanguage().startsWith(
+                Locale.CHINESE.getLanguage());
+    }
+
+    public static boolean isChinese(Context mContext, char ch) {
+        return String.valueOf(ch).matches("[\u4E00-\u9FA5]");
     }
 }
