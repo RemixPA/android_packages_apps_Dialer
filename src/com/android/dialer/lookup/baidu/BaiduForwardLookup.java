@@ -6,7 +6,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
-import android.provider.ContactsContract.CommonDataKinds.Website;
 import android.util.Log;
 
 import com.android.dialer.calllog.ContactInfo;
@@ -32,7 +31,7 @@ public class BaiduForwardLookup extends ForwardLookup {
             GoogleForwardLookup.class.getSimpleName();
 
     private static final String LOOKUP_URL =
-            "http://api.map.baidu.com/place/v2/search?ak=7397d486232d0a41a7ac893c157ad2c6&output=json&page_size=10&page_num=0&scope=2";
+            "http://api.map.baidu.com/place/v2/search?ak=7397d486232d0a41a7ac893c157ad2c6&output=json&page_size=10&page_num=0&scope=1";
     private static final String CONVERT_GEO_URL = "http://api.map.baidu.com/geoconv/v1/?&ak=7397d486232d0a41a7ac893c157ad2c6";
 
     private static final String QUERY_COORDS = "coords";
@@ -42,12 +41,10 @@ public class BaiduForwardLookup extends ForwardLookup {
     private static final String QUERY_LOCATION = "location";
     private static final String QUERY_RADIUS = "radius";
     private static final String RESULT_ARRAY_NAME = "results";
-    private static final String RESULT_DETAIL_NAME = "detail_info";
     private static final String RESULT_NAME = "name";
     private static final String RESULT_ADDRESS = "address";
     private static final String RESULT_NUMBER = "telephone";
     private static final String RESULT_PHOTO_URI = "d";
-    private static final String RESULT_WEBSITE = "detail_url";
 
     private static final int MIN_QUERY_LEN = 2;
     private static final int MAX_QUERY_LEN = 50;
@@ -146,9 +143,6 @@ public class BaiduForwardLookup extends ForwardLookup {
                 String phoneNumber = obj.getString(RESULT_NUMBER);
                 String displayName = obj.getString(RESULT_NAME);
                 String address = obj.getString(RESULT_ADDRESS);
-
-                JSONObject detail = obj.getJSONObject(RESULT_DETAIL_NAME);
-                String profileUrl = detail.optString(RESULT_WEBSITE, null);
                 String photoUri = obj.optString(RESULT_PHOTO_URI, null);
 
                 ContactBuilder builder = new ContactBuilder(
@@ -167,11 +161,6 @@ public class BaiduForwardLookup extends ForwardLookup {
                 a.formattedAddress = address;
                 a.type = StructuredPostal.TYPE_WORK;
                 builder.addAddress(a);
-
-                ContactBuilder.WebsiteUrl w = new ContactBuilder.WebsiteUrl();
-                w.url = profileUrl;
-                w.type = Website.TYPE_PROFILE;
-                builder.addWebsite(w);
 
                 if (photoUri != null) {
                     builder.setPhotoUri(photoUri);
