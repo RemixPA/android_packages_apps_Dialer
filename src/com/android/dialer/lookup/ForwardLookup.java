@@ -17,6 +17,7 @@
 package com.android.dialer.lookup;
 
 import com.android.dialer.calllog.ContactInfo;
+import com.android.dialer.lookup.baidu.BaiduForwardLookup;
 import com.android.dialer.lookup.google.GoogleForwardLookup;
 import com.android.dialer.lookup.openstreetmap.OpenStreetMapForwardLookup;
 
@@ -39,6 +40,8 @@ public abstract class ForwardLookup {
                 INSTANCE = new GoogleForwardLookup(context);
             } else if (provider.equals(LookupSettings.FLP_OPENSTREETMAP)) {
                 INSTANCE = new OpenStreetMapForwardLookup(context);
+            } else if (provider.equals(LookupSettings.FLP_BAIDU)) {
+                INSTANCE = new BaiduForwardLookup();
             }
         }
 
