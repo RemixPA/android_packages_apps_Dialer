@@ -55,6 +55,9 @@ public abstract class ForwardLookup {
         } else if (provider.equals(LookupSettings.FLP_OPENSTREETMAP)
                 && INSTANCE instanceof OpenStreetMapForwardLookup) {
             return true;
+        } else if (provider.equals(LookupSettings.FLP_BAIDU)
+                && INSTANCE instanceof BaiduForwardLookup) {
+            return true;
         } else {
             return false;
         }
